@@ -92,9 +92,18 @@ jobs:
           LOCAL_TAG="camofox-browser:${{ steps.meta.outputs.version }}-${{ matrix.arch }}"
           VERSION_TAG="${{ steps.meta.outputs.ghcr_image }}:${{ steps.meta.outputs.version }}-${{ matrix.arch }}"
           SHA_TAG="${{ steps.meta.outputs.ghcr_image }}:sha-${GITHUB_SHA::12}-${{ matrix.arch }}"
+          ARCH_TAG="${{ steps.meta.outputs.ghcr_image }}:${{ matrix.arch }}"
+          LATEST_TAG="${{ steps.meta.outputs.ghcr_image }}:latest"
 
           docker image inspect "$LOCAL_TAG" > /dev/null
           docker tag "$LOCAL_TAG" "$VERSION_TAG"
           docker tag "$LOCAL_TAG" "$SHA_TAG"
+          docker tag "$LOCAL_TAG" "$ARCH_TAG"
           docker push "$VERSION_TAG"
           docker push "$SHA_TAG"
+          docker push "$ARCH_TAG"
+
+          if [ "${{ matrix.arch }}" = "x86_64" ]; then
+            docker tag "$LOCAL_TAG" "$LATEST_TAG"
+            docker push "$LATEST_TAG"
+          fi
